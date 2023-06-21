@@ -8,14 +8,23 @@ export default{
 				return new FormData();
 			}
 		}
+		if(request.method.toUpperCase() == 'OPTIONS'){
+			return new Response('', {headers: { 'Access-Control-Allow-Origin': '*' }});
+		}
 		try{
 			var reqdata,
 				pattern = /fetch\("([^"]+)", (\{.+})\);/s,
 				url = new URL(request.url),
 				data = await getPostData(request);
-			if(url.searchParams.get("reqdata") != null){
-				reqdata = JSON.parse(url.searchParams.get("reqdata"));
-				return fetch(reqdata['url'], reqdata['options']);
+			if(url.searchParams.get("reqdata") != null || data.get("reqdata") != null){
+				reqdata = JSON.parse(url.searchParams.get("reqdata") ?? data.get("reqdata"));
+				var resp = fetch(reqdata['url'], reqdata['options']);
+				if(url.searchParams.get("unblock_cors") != null){
+					resp = await resp;
+					resp = new Response(resp.body, resp);
+					resp.headers.set('Access-Control-Allow-Origin', '*');
+				}
+				return resp;
 			}
 			else if(data.get("fetchdata") == null || !pattern.test(data.get("fetchdata"))){
 				var form = `
