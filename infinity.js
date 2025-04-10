@@ -39,12 +39,14 @@ retval=cipher.decrypt(bytes.fromhex('${m[3]}')).hex()
             });
         }
         try {
-            var reqdata,
+            var reqdata = request.headers.get("content-type")=="application/json" ? await request.json() : null,
                 pattern = /fetch\("([^"]+)", (\{.+})\);/s,
                 url = new URL(request.url),
-                data = await getPostData(request);
+                data = reqdata==null ? await getPostData(request) : new FormData();
             if (url.searchParams.get("reqdata") != null || data.get("reqdata") != null) {
                 reqdata = JSON.parse(url.searchParams.get("reqdata") ?? data.get("reqdata"));
+            }
+            if (reqdata != null) {
                 var resp = fetch(reqdata['url'], reqdata['options']);
                 if (reqdata['url'].indexOf('.rf.gd') != -1) {
                     resp = await resp;
