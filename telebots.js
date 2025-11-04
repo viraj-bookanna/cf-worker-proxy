@@ -52,6 +52,9 @@ retval=cipher.decrypt(bytes.fromhex('${m[3]}')).hex()
                 req_options['body'] = data;
             }
             var response = await fetch(url, req_options);
+            if(/\/file\/bot[a-zA-Z0-9:\-_]*\/[a-zA-Z0-9]*/g.test(url.pathname)){
+                return response;
+            }
             if (option.toUpperCase() == 'getWebhookInfo'.toUpperCase()) {
                 response = await response.json()
                 response['result']['url'] = response['result']['url'].replace("https://" + HOST_NAME + "/webhook?url=", '')
