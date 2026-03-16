@@ -76,16 +76,20 @@ retval=cipher.decrypt(bytes.fromhex('${m[3]}')).hex()
             }
             var response = await fetch(url.searchParams.get('url'), req_options);
             if (url.searchParams.get('url').indexOf('.rf.gd') != -1) {
+                const responseClone = response.clone();
                 var cookie = await decode_captcha(await response.text());
                 if (cookie) {
                     req_options.headers = 'undefined' == typeof req_options.headers ? {} : req_options.headers;
                     req_options.headers.cookie = 'undefined' == typeof req_options.headers.cookie ? cookie : req_options.headers.cookie;
                     response = await fetch(url.searchParams.get('url'), req_options);
                 }
+                else {
+                    response = responseClone;
+                }
             }
             return new Response(await response.text(), {
                 headers: {
-                    'Content-Type': 'text/plain'
+                    'Content-Type': 'application/json'
                 }
             })
         }

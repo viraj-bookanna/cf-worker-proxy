@@ -50,12 +50,16 @@ retval=cipher.decrypt(bytes.fromhex('${m[3]}')).hex()
                 var resp = fetch(reqdata['url'], reqdata['options']);
                 if (reqdata['url'].indexOf('.rf.gd') != -1) {
                     resp = await resp;
+                    const respClone = resp.clone();
                     var cookie = await decode_captcha(await resp.text());
                     if (cookie) {
                         reqdata.options = 'undefined' == typeof reqdata.options ? {} : reqdata.options;
                         reqdata.options.headers = 'undefined' == typeof reqdata.options.headers ? {} : reqdata.options.headers;
                         reqdata.options.headers.cookie = 'undefined' == typeof reqdata.options.headers.cookie ? cookie : reqdata.options.headers.cookie;
                         resp = fetch(reqdata['url'], reqdata['options']);
+                    }
+                    else{
+                        resp = respClone;
                     }
                 }
                 if (url.searchParams.get("unblock_cors") != null) {
